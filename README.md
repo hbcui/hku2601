@@ -24,4 +24,4 @@
 | 设计 | [面向决策的短视域想象](topics/decision_centric_imagination.md) | 控制与重规划的研究方案 |
 | 工程 | [开发约定](topics/development.md) · [迁移记录](topics/migration.md) | 模块边界与历史迁移 |
 
-`topics/` 按主题保存文档；旧的 `parts/` 路径保留为兼容链接。实验报告和模型源码仍以各自目录为准。全项目入口见 [项目 README](../README.md)。
+`topics/` 按主题保存文档。实验报告和模型源码仍以各自目录为准。全项目入口见 [项目 README](../README.md)。
