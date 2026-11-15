@@ -4,6 +4,10 @@
 
 ## 当前研究线
 
+当前边界已明确为 **routing 唯一 action，任务与车辆绑定属于外部条件**。实现入口为 `conditioned_world_model_executed_routing_v1`，保留执行图记忆，移除自主派发头和派发损失，见[当前条件协议](routing_only_external_conditions.md)。旧 `conditioned_world_model_executed_graph_v1` 的自主派发属于历史实验；其任务匹配失败不是给定绑定条件下的动力学结论。
+
+正式扩训当前不放行：原缓存构建进程中断，旧自动脚本已禁用。新增真实硬执行器多步轨迹目标和快速参数差分诊断；训练片段改善，但独立验证资源与综合误差退步。这个短诊断没有解决可扩展联合训练和长期泛化，见[准入结论](../../runs/executed_routing_v1/readiness.json)。
+
 新增 `conditioned_world_model_predictive_residual_v1`：观测自由的确定性预测记忆、固定教师多步 OHT 表征目标和物理时间课程已实现。短期表征验证超过保持基线，但验证 seed 50 和新测试 seed 58 的 60 秒位置与运动指标均退步，候选未晋升。完整结果见[训练设计与验证记录](generalized_conditioned_dynamics.md)。
 
 新增[面向泛化的条件动力学](generalized_conditioned_dynamics.md)：共享结构条件编码、直接学习加速度与无额外启发式接管的执行 profile 已实现并通过接口验证。仅完成小样本训练，60 秒诊断仍停滞，未晋升；见[验证记录](../../runs/generalized_hard_only_v1/verification.json)。

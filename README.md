@@ -4,6 +4,10 @@
 
 ## 当前进度
 
+- [Routing 唯一动作与外部条件注入](topics/routing_only_external_conditions.md)：当前模型边界；任务绑定作为输入，保留执行图记忆和硬约束动力学。
+
+- [执行图记忆与派发语义修正](topics/executed_graph_and_dispatch_contract.md)：历史自主派发实验，已被上述条件边界取代。
+
 - [面向泛化的硬约束条件动力学](topics/generalized_conditioned_dynamics.md)：新的学习执行契约、确定性多步预测记忆、物理时间课程与验收边界。
 
 - [模型与实验进度](topics/model_status.md)：当前模型分支、可追溯的实验结果、限制和后续验证。
