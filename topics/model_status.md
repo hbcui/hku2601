@@ -4,6 +4,10 @@
 
 ## 当前研究线
 
+新增 `conditioned_world_model_predictive_residual_v1`：观测自由的确定性预测记忆、固定教师多步 OHT 表征目标和物理时间课程已实现。短期表征验证超过保持基线，但验证 seed 50 和新测试 seed 58 的 60 秒位置与运动指标均退步，候选未晋升。完整结果见[训练设计与验证记录](generalized_conditioned_dynamics.md)。
+
+新增[面向泛化的条件动力学](generalized_conditioned_dynamics.md)：共享结构条件编码、直接学习加速度与无额外启发式接管的执行 profile 已实现并通过接口验证。仅完成小样本训练，60 秒诊断仍停滞，未晋升；见[验证记录](../../runs/generalized_hard_only_v1/verification.json)。
+
 | 分支 | 作用与状态 | 证据 |
 | --- | --- | --- |
 | 条件世界模型 V4 | 条件事件动力学和硬执行器；另有 Graph → 官方 Mamba2 的实验分支。V4 状态记录为已实现、训练和评估，但未晋升，默认模型未改变。 | [V4 README](../../src/conditioned_world_model_v4/README.md)、[状态](../../runs/conditioned_world_model_v4/status.json) |

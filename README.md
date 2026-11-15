@@ -4,6 +4,8 @@
 
 ## 当前进度
 
+- [面向泛化的硬约束条件动力学](topics/generalized_conditioned_dynamics.md)：新的学习执行契约、确定性多步预测记忆、物理时间课程与验收边界。
+
 - [模型与实验进度](topics/model_status.md)：当前模型分支、可追溯的实验结果、限制和后续验证。
 - [V4 实现与实验记录](../src/conditioned_world_model_v4/README.md)：条件事件动力学、Graph → Mamba2、执行器及闭环实验。V4 状态文件仍标记为未晋升；实验候选不等于默认模型。
 - [V6 硬约束实验](../src/deepfleet_gf_constrained_v6/README.md)：资源事件与安全投影，以及长时域停滞的评估。
