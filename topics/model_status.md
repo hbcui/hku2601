@@ -6,7 +6,7 @@
 
 当前边界已明确为 **routing 唯一 action，任务与车辆绑定属于外部条件**。实现入口为 `conditioned_world_model_executed_routing_v1`，保留执行图记忆，移除自主派发头和派发损失，见[当前条件协议](routing_only_external_conditions.md)。旧 `conditioned_world_model_executed_graph_v1` 的自主派发属于历史实验；其任务匹配失败不是给定绑定条件下的动力学结论。
 
-正式扩训当前不放行：原缓存构建进程中断，旧自动脚本已禁用。新增真实硬执行器多步轨迹目标和快速参数差分诊断；训练片段改善，但独立验证资源与综合误差退步。这个短诊断没有解决可扩展联合训练和长期泛化，见[准入结论](../../runs/executed_routing_v1/readiness.json)。
+当前关键改进为[资源—运动联合训练](joint_trajectory_training.md)：硬执行器中采样自身轨迹，回放其概率并对神经转移网络自动微分，替代先前参数差分诊断。4 次新增联合更新后，在同协议的两个场景、共 8 条成对 60 秒轨迹中，平均 energy score 降低约 22.8%、位置误差降低约 21.8%、Merge 召回提高，但运动召回下降。用户已明确要求扩大到完整 50／5／5 划分，采用冻结当前版本的 tmux 后台任务，见[配置和运行记录](formal_joint_50_5_5.md)；长期性能尚未验收、默认模型未晋升。旧 factual-only 自动扩训仍禁用。
 
 新增 `conditioned_world_model_predictive_residual_v1`：观测自由的确定性预测记忆、固定教师多步 OHT 表征目标和物理时间课程已实现。短期表征验证超过保持基线，但验证 seed 50 和新测试 seed 58 的 60 秒位置与运动指标均退步，候选未晋升。完整结果见[训练设计与验证记录](generalized_conditioned_dynamics.md)。
 

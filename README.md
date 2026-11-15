@@ -4,6 +4,10 @@
 
 ## 当前进度
 
+- [50／5／5 联合训练运行协议](topics/formal_joint_50_5_5.md)：按最新要求启动 tmux 后台任务；固定当前版本、数据隔离、5／10／30 秒课程和恢复入口。
+
+- [硬执行器中的资源—运动联合训练](topics/joint_trajectory_training.md)：参考官方世界模型实现后的当前改进；用轨迹概率自动微分和多粒子评分替代参数差分。
+
 - [Routing 唯一动作与外部条件注入](topics/routing_only_external_conditions.md)：当前模型边界；任务绑定作为输入，保留执行图记忆和硬约束动力学。
 
 - [执行图记忆与派发语义修正](topics/executed_graph_and_dispatch_contract.md)：历史自主派发实验，已被上述条件边界取代。
