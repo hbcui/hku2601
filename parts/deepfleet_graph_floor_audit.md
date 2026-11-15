@@ -1,0 +1,29 @@
+# DeepFleet graph-floor audit for the AMHS world model
+
+Source: Agaskar et al., [*DeepFleet: Multi-Agent Foundation Models for Mobile Robots*](https://arxiv.org/abs/2508.08574), especially §§3, 4, 8. The supplied PDF is **arXiv v1 (August 2025)**; the [current v3 HTML](https://arxiv.org/html/2508.08574v3) retains the graph-floor details audited here. The paper describes an architecture, not a released implementation; no author code was linked in the supplied PDF. Claims below distinguish its text from this repository's implementation.
+
+## Path-slot contract and experiment correction
+
+`EventGraphTensorizer` uses `TopologyStateFeatures.path_slot`, which **sorts RailPath IDs**. `DirectedTopologyEncoding.path_slot` uses insertion order internally, but it does not supply the OHT path slots. The original `deepfleet_hybrid_v1` pilot used the correct sorted order. A subsequent attempted fix changed the floor encoder to insertion order and created the **invalid** `runs/deepfleet_hybrid_v1_pathslots_fixed_3train_3ep/` run. The code is restored to sorted order and the regression test now checks against `TopologyStateFeatures` directly. Use the original `runs/deepfleet_hybrid_v1_processed_pilot_3train_3ep/` result when comparing version 1 with the RSSM baseline; disregard the `pathslots_fixed` run.
+
+## What the paper actually does and what remains different
+
+| Detail in DeepFleet GF | Initial hybrid v1 | AMHS implication |
+| --- | --- | --- |
+| Directed floor vertices carry static attributes **and the robot occupying the vertex at each time** (§8). | RailPaths are static tokens; OHTs are separate dynamic tokens with a path embedding. | Scatter predicted OHT/route/resource occupancy into path or node tokens at **every rollout step**, propagate over directed edges, then gather context back to OHTs. This is the main missing graph-floor operation. |
+| Spatial and temporal edges connect `(vertex,time)` nodes; graph blocks alternate message passing and edge-conditioned attention (§8.1). | Two static RailPath passes precede one dynamic entity attention; a recurrent state supplies temporal memory. | Keep the efficient recurrent ledger, but give messages explicit dynamic edge features and multiple spatial blocks. Do not claim a literal spatiotemporal GF reproduction. |
+| Edge embeddings contribute to messages, attention keys and values (§8.1). | Entity attention receives one scalar shortest-travel-time bias; floor messages have no edge tokens. | Distinguish same RailPath, directed successor, merge contention, shared reserved resource, route overlap, and task assignment, with direction and metric distance. |
+| GF uses a 4-second whole-floor history in the reported experiment (§4), then rolls forward autoregressively for 60 seconds. | Pilot starts from one observed state and trains only 2-second free rollouts. | Add a short observed-history warmup before comparing 5–10-second forecasts. A 3-epoch, 2-second pilot cannot establish sustained-rollout quality. |
+| Joint heads predict movement/wait, direction, robot state, and target bearing; rollout applies a deterministic admissible transition and conflict arbitration (§8.1–8.3). | Movement, speed, mode, route and resource heads feed a persistent ledger; track projection keeps OHTs on rails. | Preserve learned movement and track projection. A grid vertex tie-break is unsuitable for continuous RailPaths and merge/bay reservations; conflict handling must represent AMHS resource identities and waits. |
+| Evaluation includes physical trajectory DTW and congestion delay error across 60-second rollouts (§4). | Pilot reports pose/path/speed and resource-holder metrics for one held-out anchor. | Add congestion/wait and route-cap diagnostics across multiple held-out seeds and anchors. One anchor is only a smoke test. |
+
+## Data and objective gaps found during the audit
+
+1. The v17 pilot has `all_route_actions=True`, so `train_semimarkov_event_rssm.py` sets `supervise_internal_routes=False`: route-event loss and internal-route labels are zero by design. Future route commitments are supplied as exogenous controls during evaluation. This is a **conditional forecast under known future route actions**; it is not an autonomous prediction of future routing decisions. That matches the project's high-level action contract, but test reports must say so.
+2. Current one-second motion targets use the difference of path-local `x` values to define movement and exclude RailPath changes from continuous distance loss. Cross-path transitions are exactly where route and motion coordination matters, so this target is inadequate for a direct GF-style movement objective. Use global directed arclength travelled between observed states or frame-level movement events, with a clear mask when the actual route is unknown.
+3. The v1 floor encoder uses the straight endpoint chord as a direction feature. In the full v17 map, 619 of 4014 paths are over 5% longer than their chords. `model_v2.py` now reads native primitive entry/exit tangents, path type and edge turn features.
+4. A single scalar shortest-time bias in v1 selects 16 entity neighbors. `model_v2.py` now adds entity type, same-RailPath and strong-link indicators to edge-conditioned attention and re-scatter live OHT occupancy to floor paths on every predicted step. It still does not construct the paper's literal full vertex-by-time graph.
+
+The v2 small pilot adds four seconds of causal observed-history filtering and 30 Hz cross-RailPath arclength labels. It keeps the route-control interpretation above and selects its checkpoint from the final 10-second training stage.
+
+The paper's Table 1/abstract call GF event-based or asynchronous, while §8 describes `V × {1,…,T}` graph slices and synchronous floor updates. Treat this as an ambiguity in the paper. AMHS should retain its own ordered external route/task events and variable-duration steps rather than assuming a synchronous grid action clock.
